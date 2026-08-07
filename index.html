@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ferramentas de PDF</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Bibliotecas PDF (pdf-lib para manipular e pdf.js para renderizar/comprimir) -->
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+  <main class="container">
+    <h2>Ferramentas de PDF</h2>
+
+    <!-- Seleção de Ação -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="selecionarAcao('juntar')">Juntar</button>
+      <button class="tab-btn" onclick="selecionarAcao('separar')">Separar</button>
+      <button class="tab-btn" onclick="selecionarAcao('comprimir')">Comprimir</button>
+    </div>
+
+    <!-- Upload de Arquivo -->
+    <div class="upload-box">
+      <input type="file" id="pdf-input" accept=".pdf">
+      <p id="file-label">Selecione o arquivo PDF</p>
+    </div>
+
+    <!-- Opções do Separar (Oculto por padrão) -->
+    <div id="separar-options" class="opcoes hidden">
+      <label>Intervalo de páginas:</label>
+      <div class="range-inputs">
+        <input type="number" id="page-start" min="1" placeholder="De" value="1">
+        <input type="number" id="page-end" min="1" placeholder="Até">
+      </div>
+    </div>
+
+    <!-- Botão Principal -->
+    <button id="btn-processar">Processar e Baixar</button>
+    <div id="status" class="status"></div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
