@@ -7,6 +7,15 @@ let acaoAtual = 'juntar';
 
 function selecionarAcao(acao) {
   acaoAtual = acao;
+
+    // 1. Remove 'active' de todos os cards e abas
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+  // 2. Identifica o card pai clicado (mesmo se clicar no ícone ou no texto)
+  if (window.event) {
+    const cardClicado = window.event.target.closest('.tab-btn');
+    if (cardClicado) cardClicado.classList.add('active');
+  }
   
   const input = document.getElementById('pdf-input');
   const label = document.getElementById('file-label');
