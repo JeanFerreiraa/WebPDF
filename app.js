@@ -1,35 +1,53 @@
 // Configuração do Worker do PDF.js
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
 
 let acaoAtual = 'juntar';
 
 function selecionarAcao(acao) {
   acaoAtual = acao;
+  
   const input = document.getElementById('pdf-input');
   const label = document.getElementById('file-label');
   const separarOptions = document.getElementById('separar-options');
+  const workspace = document.getElementById('workspace');
+  const toolTitle = document.getElementById('tool-title');
 
-  // Atualiza visual das abas
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  if (event && event.target) {
-    event.target.classList.add('active');
+  // 1. Exibe a área de trabalho se ela existir
+  if (workspace) {
+    workspace.classList.remove('hidden');
   }
 
-  // Alterna visibilidade dos campos e modo de seleção
-  if (acao === 'juntar') {
-    input.setAttribute('multiple', 'true');
-    label.textContent = 'Selecione 2 ou mais arquivos PDF';
-    separarOptions.classList.add('hidden');
-  } else if (acao === 'separar') {
-    input.removeAttribute('multiple');
-    label.textContent = 'Selecione 1 arquivo PDF';
-    separarOptions.classList.remove('hidden');
-  } else if (acao === 'comprimir') {
-    input.removeAttribute('multiple');
-    label.textContent = 'Selecione 1 arquivo PDF';
-    separarOptions.classList.add('hidden');
+  // 2. Controla a exibição das opções de separar
+  if (separarOptions) {
+    if (acao === 'separar') {
+      separarOptions.classList.remove('hidden');
+    } else {
+      separarOptions.classList.add('hidden');
+    }
+  }
+
+  // 3. Atualiza títulos e regras do campo de arquivo
+  if (input) {
+    if (acao === 'juntar') {
+      input.multiple = true;
+      if (label) label.textContent = 'Selecione 2 ou mais arquivos PDF';
+      if (toolTitle) toolTitle.textContent = 'Unir PDFs';
+    } else if (acao === 'separar') {
+      input.multiple = false;
+      if (label) label.textContent = 'Selecione 1 arquivo PDF';
+      if (toolTitle) toolTitle.textContent = 'Dividir PDF';
+    } else if (acao === 'comprimir') {
+      input.multiple = false;
+      if (label) label.textContent = 'Selecione 1 arquivo PDF';
+      if (toolTitle) toolTitle.textContent = 'Comprimir PDF';
+    }
   }
 }
+
+// Garante funcionamento tanto com onclick="selecionarAcao(...)" quanto onclick="abrirFerramenta(...)"
+const abrirFerramenta = selecionarAcao;
 
 document.getElementById('btn-processar').addEventListener('click', async () => {
   const input = document.getElementById('pdf-input');
