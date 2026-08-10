@@ -5,19 +5,28 @@ let acaoAtual = 'juntar';
 
 function selecionarAcao(acao) {
   acaoAtual = acao;
+  const input = document.getElementById('pdf-input');
+  const label = document.getElementById('file-label');
   const separarOptions = document.getElementById('separar-options');
-  const workspace = document.getElementById('workspace');
 
-  workspace.classList.remove('hidden');
+  // Atualiza visual das abas
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  if (event && event.target) {
+    event.target.classList.add('active');
+  }
 
+  // Alterna visibilidade dos campos e modo de seleção
   if (acao === 'juntar') {
-    document.getElementById('tool-title').textContent = 'Unir PDFs';
+    input.setAttribute('multiple', 'true');
+    label.textContent = 'Selecione 2 ou mais arquivos PDF';
     separarOptions.classList.add('hidden');
   } else if (acao === 'separar') {
-    document.getElementById('tool-title').textContent = 'Dividir PDF';
+    input.removeAttribute('multiple');
+    label.textContent = 'Selecione 1 arquivo PDF';
     separarOptions.classList.remove('hidden');
   } else if (acao === 'comprimir') {
-    document.getElementById('tool-title').textContent = 'Comprimir PDF';
+    input.removeAttribute('multiple');
+    label.textContent = 'Selecione 1 arquivo PDF';
     separarOptions.classList.add('hidden');
   }
 }
