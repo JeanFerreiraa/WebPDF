@@ -1,0 +1,17 @@
+{
+  "name": "WebPDF - Ferramentas de PDF",
+  "short_name": "WebPDF",
+  "description": "Processe, una, divida e comprima PDFs offline no seu navegador.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/337/337946.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
