@@ -250,3 +250,12 @@ function exibirStatus(mensagem, tipo) {
 function ocultarStatus() {
   statusBanner.className = 'status-banner hidden';
 }
+
+// Registra o Service Worker para suporte Offline e Instalação PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('PWA Service Worker ativo:', reg.scope))
+      .catch(err => console.error('Erro no PWA SW:', err));
+  });
+}
