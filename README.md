@@ -1,43 +1,41 @@
-# 📄 WebPDF — Processador de PDFs Web
+# 📄 WebPDF
 
-> Uma ferramenta web leve, rápida e 100% client-side para juntar, separar e comprimir arquivos PDF diretamente no navegador.
+O **WebPDF** é uma aplicação web moderna, rápida e 100% privada para manipulação de arquivos PDF diretamente no navegador. Todos os arquivos são processados localmente no dispositivo do usuário, garantindo total segurança dos dados.
 
-![Licença](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)
-![JavaScript](https://img.shields.io/badge/JavaScript-ES6%2B-yellow.svg)
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)
+![Versão](https://img.shields.io/badge/version-1.1.0-blue.svg)
+![PWA](https://img.shields.io/badge/PWA-Ready-success.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 ---
 
 ## 🚀 Funcionalidades
 
-- 📑 **Juntar PDFs:** Unifique múltiplos arquivos PDF em um único documento de forma simples e rápida.
-- ✂️ **Separar Páginas:** Extraia um intervalo específico de páginas (ex: da página 1 até a 5) de um arquivo PDF.
-- 🪶 **Comprimir PDF:** Reduza o tamanho do arquivo reprocessando e otimizando as páginas.
-
----
-
-## 🛡️ Privacidade e Segurança
-
-Diferente de conversores online tradicionais, **esta ferramenta não envia seus arquivos para nenhum servidor externo**. 
-
-Todo o processamento de leitura, corte, união e download ocorre **100% localmente no seu navegador**. Seus documentos e dados confidenciais nunca saem do seu computador.
+- 🧩 **Unir PDFs:** Combine múltiplos arquivos PDF em um único documento.
+- ✂️ **Dividir PDF:** Extraia intervalos específicos de páginas com facilidade.
+- 🪶 **Comprimir PDF:** Reduza o tamanho de arquivos pesados mantendo a qualidade.
+- 📱 **Suporte PWA & Offline:** Instale o app no celular/computador e use mesmo sem acesso à internet.
+- 🎨 **Interface Moderna & UX:** Design responsivo no estilo SaaS, com suporte a *Drag & Drop* (arrastar e soltar) e visualização de arquivos selecionados.
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **HTML5 & CSS3:** Interface limpa, moderna e responsiva.
-- **JavaScript (Vanilla):** Lógica da aplicação sem dependência de frameworks pesados.
-- **[pdf-lib](https://pdf-lib.js.org/):** Manipulação, criação, união e corte de PDFs no lado do cliente.
-- **[pdf.js (Mozilla)](https://mozilla.github.io/pdf.js/):** Renderização de páginas para otimização e compressão.
+- **HTML5 & CSS3** (Design System customizado com variáveis CSS e ícones SVG)
+- **JavaScript (ES6+)**
+- **[pdf-lib](https://pdf-lib.js.org/):** Manipulação, junção e divisão de PDFs no client-side.
+- **[pdf.js](https://mozilla.github.io/pdf.js/):** Renderização de páginas para compressão.
+- **Service Worker & Web App Manifest:** Infraestrutura PWA para cache e funcionamento offline.
 
 ---
 
 ## 📁 Estrutura do Projeto
 
 ```text
-.
-├── index.html     # Estrutura da aplicação e interface
-├── style.css      # Estilos visuais e layout responsivo
-└── app.js         # Lógica de manipulação dos PDFs e eventos
+WebPDF/
+├── index.html      # Estrutura HTML5 da aplicação
+├── style.css       # Design System, variáveis CSS e responsividade
+├── app.js          # Lógica de manipulação dos PDFs e registro do PWA
+├── manifest.json   # Configuração de instalação do PWA (ícones, tema, nome)
+├── sw.js           # Service Worker para gerenciamento de cache offline
+├── CHANGELOG.md    # Histórico de versões e alterações
+└── README.md       # Documentação principal do repositório
