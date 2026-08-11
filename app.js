@@ -1,104 +1,171 @@
-// Configuração do Worker do PDF.js
 if (typeof pdfjsLib !== 'undefined') {
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 
 let acaoAtual = 'juntar';
+let arquivosSelecionados = [];
 
-function selecionarAcao(acao) {
+// Elementos da Interface
+const dropZone = document.getElementById('drop-zone');
+const pdfInput = document.getElementById('pdf-input');
+const fileLabel = document.getElementById('file-label');
+const fileList = document.getElementById('file-list');
+const separarOptions = document.getElementById('separar-options');
+const btnProcessar = document.getElementById('btn-processar');
+const btnText = document.getElementById('btn-text');
+const btnSpinner = document.getElementById('btn-spinner');
+const statusBanner = document.getElementById('status');
+
+// 1. Troca de Ferramenta (Aba)
+function selecionarAcao(acao, btn) {
   acaoAtual = acao;
 
-    // 1. Remove 'active' de todos os cards e abas
-  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
 
-  // 2. Identifica o card pai clicado (mesmo se clicar no ícone ou no texto)
-  if (window.event) {
-    const cardClicado = window.event.target.closest('.tab-btn');
-    if (cardClicado) cardClicado.classList.add('active');
-  }
-  
-  const input = document.getElementById('pdf-input');
-  const label = document.getElementById('file-label');
-  const separarOptions = document.getElementById('separar-options');
-  const workspace = document.getElementById('workspace');
-  const toolTitle = document.getElementById('tool-title');
+  limparArquivos();
 
-  // 1. Exibe a área de trabalho se ela existir
-  if (workspace) {
-    workspace.classList.remove('hidden');
-  }
-
-  // 2. Controla a exibição das opções de separar
   if (separarOptions) {
-    if (acao === 'separar') {
-      separarOptions.classList.remove('hidden');
-    } else {
-      separarOptions.classList.add('hidden');
-    }
+    separarOptions.classList.toggle('hidden', acao !== 'separar');
   }
 
-  // 3. Atualiza títulos e regras do campo de arquivo
-  if (input) {
-    if (acao === 'juntar') {
-      input.multiple = true;
-      if (label) label.textContent = 'Selecione 2 ou mais arquivos PDF';
-      if (toolTitle) toolTitle.textContent = 'Unir PDFs';
-    } else if (acao === 'separar') {
-      input.multiple = false;
-      if (label) label.textContent = 'Selecione 1 arquivo PDF';
-      if (toolTitle) toolTitle.textContent = 'Dividir PDF';
-    } else if (acao === 'comprimir') {
-      input.multiple = false;
-      if (label) label.textContent = 'Selecione 1 arquivo PDF';
-      if (toolTitle) toolTitle.textContent = 'Comprimir PDF';
-    }
+  if (acao === 'juntar') {
+    pdfInput.multiple = true;
+    fileLabel.textContent = 'Arraste seus PDFs para juntar';
+  } else {
+    pdfInput.multiple = false;
+    fileLabel.textContent = 'Arraste 1 arquivo PDF';
   }
 }
 
-// Garante funcionamento tanto com onclick="selecionarAcao(...)" quanto onclick="abrirFerramenta(...)"
-const abrirFerramenta = selecionarAcao;
+// 2. Manipulação do Drag and Drop
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropZone.classList.add('dragover');
+});
 
-document.getElementById('btn-processar').addEventListener('click', async () => {
-  const input = document.getElementById('pdf-input');
-  const btn = document.getElementById('btn-processar');
-  const status = document.getElementById('status');
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('dragover');
+});
 
-  if (!input.files.length) {
-    alert('Selecione pelo menos um arquivo PDF.');
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) {
+    adicionarArquivos(e.dataTransfer.files);
+  }
+});
+
+pdfInput.addEventListener('change', (e) => {
+  if (e.target.files.length) {
+    adicionarArquivos(e.target.files);
+  }
+});
+
+// 3. Gerenciamento de Arquivos Selecionados
+function adicionarArquivos(files) {
+  const novos = Array.from(files).filter(f => f.type === 'application/pdf');
+
+  if (acaoAtual === 'juntar') {
+    arquivosSelecionados = [...arquivosSelecionados, ...novos];
+  } else {
+    arquivosSelecionados = novos.slice(0, 1);
+  }
+
+  atualizarListaArquivos();
+}
+
+function removerArquivo(index) {
+  arquivosSelecionados.splice(index, 1);
+  atualizarListaArquivos();
+}
+
+function limparArquivos() {
+  arquivosSelecionados = [];
+  pdfInput.value = '';
+  atualizarListaArquivos();
+  ocultarStatus();
+}
+
+function atualizarListaArquivos() {
+  if (!arquivosSelecionados.length) {
+    fileList.classList.add('hidden');
+    dropZone.classList.remove('hidden');
+    return;
+  }
+
+  fileList.innerHTML = '';
+  arquivosSelecionados.forEach((file, index) => {
+    const item = document.createElement('div');
+    item.className = 'file-item';
+    item.innerHTML = `
+      <div class="file-info">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div>
+          <div class="file-name" title="${file.name}">${file.name}</div>
+          <div class="file-size">${formatarTamanho(file.size)}</div>
+        </div>
+      </div>
+      <button class="remove-file-btn" onclick="removerArquivo(${index})" title="Remover">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    `;
+    fileList.appendChild(item);
+  });
+
+  fileList.classList.remove('hidden');
+}
+
+function formatarTamanho(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+// 4. Processamento Principal
+btnProcessar.addEventListener('click', async () => {
+  if (!arquivosSelecionados.length) {
+    exibirStatus('Selecione pelo menos um arquivo PDF.', 'error');
     return;
   }
 
   try {
-    btn.disabled = true;
-    status.textContent = 'Processando...';
+    iniciarCarregamento();
 
     let resultBytes;
     let fileName = 'resultado.pdf';
 
     if (acaoAtual === 'juntar') {
-      resultBytes = await juntarPDFs(input.files);
+      if (arquivosSelecionados.length < 2) {
+        exibirStatus('Selecione pelo menos 2 arquivos para juntar.', 'error');
+        pararCarregamento();
+        return;
+      }
+      resultBytes = await juntarPDFs(arquivosSelecionados);
       fileName = 'pdf_unificado.pdf';
     } else if (acaoAtual === 'separar') {
       const inicio = parseInt(document.getElementById('page-start').value) || 1;
       const fim = parseInt(document.getElementById('page-end').value);
-      resultBytes = await separarPDF(input.files[0], inicio, fim);
+      resultBytes = await separarPDF(arquivosSelecionados[0], inicio, fim);
       fileName = 'pdf_extraido.pdf';
     } else if (acaoAtual === 'comprimir') {
-      resultBytes = await comprimirPDF(input.files[0]);
+      resultBytes = await comprimirPDF(arquivosSelecionados[0]);
       fileName = 'pdf_comprimido.pdf';
     }
 
     downloadPDF(resultBytes, fileName);
-    status.textContent = '✅ Concluído com sucesso!';
+    exibirStatus('✅ Concluído com sucesso! Download iniciado.', 'success');
   } catch (error) {
     console.error(error);
-    status.textContent = '❌ Erro ao processar o arquivo.';
+    exibirStatus('❌ Erro ao processar o arquivo PDF.', 'error');
   } finally {
-    btn.disabled = false;
+    pararCarregamento();
   }
 });
 
-// 1. Unir PDFs
+// Funções de Apoio ao PDF (PDFLib / PDF.js)
 async function juntarPDFs(files) {
   const mergedPdf = await PDFLib.PDFDocument.create();
   for (const file of files) {
@@ -110,7 +177,6 @@ async function juntarPDFs(files) {
   return await mergedPdf.save();
 }
 
-// 2. Separar Páginas do PDF
 async function separarPDF(file, inicio, fim) {
   const bytes = await file.arrayBuffer();
   const srcDoc = await PDFLib.PDFDocument.load(bytes);
@@ -127,7 +193,6 @@ async function separarPDF(file, inicio, fim) {
   return await newDoc.save();
 }
 
-// 3. Comprimir PDF
 async function comprimirPDF(file) {
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -161,4 +226,27 @@ function downloadPDF(bytes, filename) {
   link.href = URL.createObjectURL(blob);
   link.download = filename;
   link.click();
+}
+
+// Utilitários de UI
+function iniciarCarregamento() {
+  btnProcessar.disabled = true;
+  btnSpinner.classList.remove('hidden');
+  btnText.textContent = 'Processando...';
+  ocultarStatus();
+}
+
+function pararCarregamento() {
+  btnProcessar.disabled = false;
+  btnSpinner.classList.add('hidden');
+  btnText.textContent = 'Processar e Baixar PDF';
+}
+
+function exibirStatus(mensagem, tipo) {
+  statusBanner.textContent = mensagem;
+  statusBanner.className = `status-banner ${tipo}`;
+}
+
+function ocultarStatus() {
+  statusBanner.className = 'status-banner hidden';
 }
